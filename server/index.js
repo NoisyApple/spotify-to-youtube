@@ -7,8 +7,8 @@ const app = express();
 
 const SCOPES =
   "ugc-image-upload user-read-recently-played user-top-read user-read-playback-position user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control streaming playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative user-follow-modify user-follow-read user-library-modify user-library-read user-read-email user-read-private";
-const CLIENT_ID = "00a1b9ba949f42a7a70d0cdf02b6aebe";
-const CLIENT_SECRET = "bc30c8723abc463c85aba0af14fec33d";
+const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
+const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:7777/authorize-callback";
 
 app.get("/spotify-authorize", (req, res) => {
