@@ -1,15 +1,24 @@
+const functions = require("firebase-functions");
 const express = require("express");
+const cors = require("cors");
 const axios = require("axios");
 const { jsonToUrlEncoded } = require("./utils");
 
-const PORT = process.env.PORT || 7777;
 const app = express();
+
+app.use(cors({ origin: true }));
+
+// app.use(myMiddleware);
 
 const SCOPES =
   "ugc-image-upload user-read-recently-played user-top-read user-read-playback-position user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control streaming playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative user-follow-modify user-follow-read user-library-modify user-library-read user-read-email user-read-private";
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = "http://localhost:7777/authorize-callback";
+const REDIRECT_URI =
+  "http://localhost:5001/spotify-to-18a63/us-central1/api/authorize-callback";
+
+// http://localhost:5001/spotify-to-18a63/us-central1/api/spotify-authorize
+// http://localhost:5001/spotify-to-18a63/us-central1/api/authorize-callback
 
 app.get("/spotify-authorize", (req, res) => {
   res.redirect(
@@ -55,6 +64,4 @@ app.get("/authorize-callback", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+exports.api = functions.https.onRequest(app);
