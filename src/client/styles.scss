@@ -8,3 +8,20 @@
 //     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
 //   font-size: large;
 // }
+
+.button {
+  border: 0;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 1em;
+  font-weight: bold;
+  outline: 0;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+}

@@ -48,15 +48,22 @@ app.get("/authorize-callback", async (req, res) => {
       }),
     });
 
-    const requestedData = await axios({
-      method: "GET",
-      url: "https://api.spotify.com/v1/me/playlists",
-      headers: {
-        Authorization: `Bearer ${tokenResponse.data.access_token}`,
-      },
-    });
+    const { access_token, refresh_token } = tokenResponse.data;
 
-    res.send(`<pre>${JSON.stringify(requestedData.data, null, 2)}</pre>`);
+    res.redirect(
+      `http://localhost:3333/storage?${jsonToUrlEncoded({
+        access_token,
+        refresh_token,
+      })}`
+    );
+
+    // res.send(
+    //   `<script>
+    //     localStorage.setItem("sp-access-token", "${tokenResponse.data["access_token"]}");
+    //     localStorage.setItem("sp-refresh-token", "${tokenResponse.data["refresh_token"]}");
+    //     window.close();
+    //   </script>`
+    // );
   } catch (error) {
     console.log(
       `ERROR: ${error.response.status}, ${error.response.statusText}`
