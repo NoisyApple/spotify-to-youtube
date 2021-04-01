@@ -1,8 +1,15 @@
-const express = require("express");
-const axios = require("axios");
-const { jsonToUrlEncoded } = require("./utils");
+import React from "react";
+import express from "express";
+import { renderToString } from "react-dom/server";
+import { StaticRouter } from "react-router-dom";
+import fs from "fs";
+import axios from "axios";
+import { jsonToUrlEncoded } from "./utils";
+import App from "../client/components/App";
 
 const PORT = process.env.PORT || 7777;
+const html = fs.readFileSync("dist/index.html").toString();
+const parts = html.split("not rendered");
 const app = express();
 
 const SCOPES =
@@ -10,6 +17,21 @@ const SCOPES =
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:7777/authorize-callback";
+
+app.use(express.static("dist"));
+
+app.use("/home", (req, res) => {
+  const staticContext = {};
+  const reactMarkup = (
+    <StaticRouter url={req.url} context={staticContext}>
+      <App />
+    </StaticRouter>
+  );
+
+  res.status(staticContext.statusCode || 200);
+  res.send(`${parts[0]}${renderToString(reactMarkup)}${parts[1]}`);
+  res.end();
+});
 
 app.get("/spotify-authorize", (req, res) => {
   res.redirect(
