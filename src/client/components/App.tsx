@@ -1,7 +1,21 @@
 import React from "react";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Authorize from "./Authorize";
+import Home from "./Home";
 
 const App = (): JSX.Element => {
-  return <h1>Hello there</h1>;
+  return (
+    <Router>
+      <Switch>
+        <Route path="/home">
+          <Home />
+        </Route>
+        <Route path="/">
+          <Authorize />
+        </Route>
+      </Switch>
+    </Router>
+  );
 };
 
 export default App;
