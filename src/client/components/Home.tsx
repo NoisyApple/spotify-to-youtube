@@ -17,13 +17,27 @@ interface TracksList {
 }
 
 interface TrackItem {
-  track: { name: string };
+  track: {
+    name: string;
+    artists: ArtistItem[];
+  };
+}
+
+interface ArtistItem {
+  name: string;
+}
+
+interface FormatedPlaylistTracks {
+  name: string;
+  artist: string;
 }
 
 const Home: FunctionComponent = () => {
   // const [selectedPlaylist, setSelectedPlaylist] = useState<string>();
   const [spotifyPlaylists, setSpotifyPlaylists] = useState<PlaylistItem[]>([]);
-  const [content, setContent] = useState<string>();
+  const [playlistTracks, setPlaylistTracks] = useState<
+    FormatedPlaylistTracks[]
+  >([]);
 
   useEffect(() => {
     const spToken = localStorage.getItem("spotify-access-token") as string;
@@ -64,14 +78,16 @@ const Home: FunctionComponent = () => {
           if (r.data) {
             const data = r.data as TracksList;
             console.log(data);
-            setContent(
-              JSON.stringify(
-                data.items.map((item) => {
-                  return item.track.name;
-                }),
-                null,
-                2
-              )
+            setPlaylistTracks(
+              data.items.map((item) => {
+                return {
+                  name: item.track.name,
+                  artist: item.track.artists.reduce(
+                    (a, b, i) => a + (i !== 0 ? " " : "") + b.name,
+                    ""
+                  ),
+                };
+              })
             );
           }
         })
@@ -94,7 +110,7 @@ const Home: FunctionComponent = () => {
           </option>
         ))}
       </select>
-      <pre>{content}</pre>
+      <pre>{JSON.stringify(playlistTracks, null, 2)}</pre>
     </div>
   );
 };
