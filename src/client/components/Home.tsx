@@ -9,10 +9,21 @@ interface PlaylistList {
 interface PlaylistItem {
   name: string;
   id: string;
+  href: string;
+}
+
+interface TracksList {
+  items: TrackItem[];
+}
+
+interface TrackItem {
+  track: { name: string };
 }
 
 const Home: FunctionComponent = () => {
+  // const [selectedPlaylist, setSelectedPlaylist] = useState<string>();
   const [spotifyPlaylists, setSpotifyPlaylists] = useState<PlaylistItem[]>([]);
+  const [content, setContent] = useState<string>();
 
   useEffect(() => {
     const spToken = localStorage.getItem("spotify-access-token") as string;
@@ -36,15 +47,54 @@ const Home: FunctionComponent = () => {
       });
   }, []);
 
+  const handlePlaylistChange = (value: string) => {
+    if (value && value !== "None") {
+      // setSelectedPlaylist(value);
+
+      const spToken = localStorage.getItem("spotify-access-token") as string;
+
+      axios({
+        method: "GET",
+        url: `${value}/tracks`,
+        headers: {
+          Authorization: `Bearer ${spToken}`,
+        },
+      })
+        .then((r) => {
+          if (r.data) {
+            const data = r.data as TracksList;
+            console.log(data);
+            setContent(
+              JSON.stringify(
+                data.items.map((item) => {
+                  return item.track.name;
+                }),
+                null,
+                2
+              )
+            );
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    }
+  };
+
   return (
     <div>
-      <select>
+      <select
+        onChange={(e) => handlePlaylistChange(e.target.value)}
+        onBlur={(e) => handlePlaylistChange(e.target.value)}
+      >
         <option>None</option>
         {spotifyPlaylists.map((pItem) => (
-          <option key={pItem.id}>{pItem.name}</option>
+          <option key={pItem.id} value={pItem.href}>
+            {pItem.name}
+          </option>
         ))}
       </select>
-      <pre>{JSON.stringify(spotifyPlaylists, null, 2)}</pre>
+      <pre>{content}</pre>
     </div>
   );
 };
