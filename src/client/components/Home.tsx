@@ -3,11 +3,16 @@ import React, { FunctionComponent, useEffect, useState } from "react";
 
 interface PlaylistList {
   href: string;
-  items: [];
+  items: PlaylistItem[];
+}
+
+interface PlaylistItem {
+  name: string;
+  id: string;
 }
 
 const Home: FunctionComponent = () => {
-  const [spotifyPlaylists, setSpotifyPlaylists] = useState([]);
+  const [spotifyPlaylists, setSpotifyPlaylists] = useState<PlaylistItem[]>([]);
 
   useEffect(() => {
     const spToken = localStorage.getItem("spotify-access-token") as string;
@@ -20,7 +25,7 @@ const Home: FunctionComponent = () => {
       },
     })
       .then((r) => {
-        // TODO: It is probabbly a better way of managing these types.
+        // TODO: There must be a better way of managing these types.
         if (r.data) {
           const data = r.data as PlaylistList;
           setSpotifyPlaylists(data.items);
@@ -33,6 +38,12 @@ const Home: FunctionComponent = () => {
 
   return (
     <div>
+      <select>
+        <option>None</option>
+        {spotifyPlaylists.map((pItem) => (
+          <option key={pItem.id}>{pItem.name}</option>
+        ))}
+      </select>
       <pre>{JSON.stringify(spotifyPlaylists, null, 2)}</pre>
     </div>
   );
