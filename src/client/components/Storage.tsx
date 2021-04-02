@@ -4,14 +4,12 @@ const Storage: FunctionComponent = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
 
-    localStorage.setItem(
-      "sp-access-token",
-      urlParams.get("access_token") as string
-    );
-    localStorage.setItem(
-      "sp-refresh-token",
-      urlParams.get("refresh_token") as string
-    );
+    const service = (urlParams.get("service") as string).toLowerCase();
+    const accessToken = urlParams.get("access_token") as string;
+    const refreshToken = urlParams.get("refresh_token") as string;
+
+    localStorage.setItem(`${service}-access-token`, accessToken);
+    localStorage.setItem(`${service}-refresh-token`, refreshToken);
 
     window.close();
   }, []);
