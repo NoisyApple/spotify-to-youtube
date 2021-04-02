@@ -5,15 +5,11 @@ const Storage: FunctionComponent = () => {
     const urlParams = new URLSearchParams(window.location.search);
 
     const service = (urlParams.get("service") as string).toLowerCase();
+    const accessToken = urlParams.get("access_token") as string;
+    const refreshToken = urlParams.get("refresh_token") as string;
 
-    localStorage.setItem(
-      `${service}-access-token`,
-      urlParams.get("access_token") as string
-    );
-    localStorage.setItem(
-      `${service}-refresh-token`,
-      urlParams.get("refresh_token") as string
-    );
+    localStorage.setItem(`${service}-access-token`, accessToken);
+    localStorage.setItem(`${service}-refresh-token`, refreshToken);
 
     window.close();
   }, []);

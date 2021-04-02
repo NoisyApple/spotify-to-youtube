@@ -74,7 +74,9 @@ app.get("/google-authorize", (req, res) => {
   res.redirect(
     `https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}${
       GOOGLE_SCOPES ? `&scope=${encodeURIComponent(GOOGLE_SCOPES)}` : ""
-    }&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}`
+    }&redirect_uri=${encodeURIComponent(
+      GOOGLE_REDIRECT_URI
+    )}&prompt=consent&access_type=offline`
   );
 });
 
@@ -96,6 +98,8 @@ app.get("/google-authorize-callback", async (req, res) => {
     });
 
     const { access_token, refresh_token } = tokenResponse.data;
+
+    console.log(tokenResponse.data);
 
     res.redirect(
       `http://localhost:3333/storage?service=GOOGLE&${jsonToUrlEncoded({
