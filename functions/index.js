@@ -13,18 +13,19 @@ const SPOTIFY_SCOPES =
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REDIRECT_URI =
-  "http://localhost:5001/spotify-to-18a63/us-central1/api/authorize-callback";
+  "http://localhost:5001/spotify-to-18a63/us-central1/api/spotify-authorize-callback";
 
 const GOOGLE_SCOPES = "https://www.googleapis.com/auth/youtube";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-// const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const GOOGLE_REDIRECT_URI =
   "http://localhost:5001/spotify-to-18a63/us-central1/api/google-authorize-callback";
 
 // http://localhost:5001/spotify-to-18a63/us-central1/api/spotify-authorize
-// http://localhost:5001/spotify-to-18a63/us-central1/api/authorize-callback
+// http://localhost:5001/spotify-to-18a63/us-central1/api/spotify-authorize-callback
 
 // http://localhost:5001/spotify-to-18a63/us-central1/api/google-authorize
+// http://localhost:5001/spotify-to-18a63/us-central1/api/google-authorize-callback
 
 app.get("/spotify-authorize", (req, res) => {
   res.redirect(
@@ -34,7 +35,7 @@ app.get("/spotify-authorize", (req, res) => {
   );
 });
 
-app.get("/authorize-callback", async (req, res) => {
+app.get("/spotify-authorize-callback", async (req, res) => {
   try {
     const tokenResponse = await axios({
       method: "POST",
@@ -50,14 +51,14 @@ app.get("/authorize-callback", async (req, res) => {
       data: jsonToUrlEncoded({
         grant_type: "authorization_code",
         code: req.query.code,
-        SPOTIFY_redirect_uri: SPOTIFY_REDIRECT_URI,
+        redirect_uri: SPOTIFY_REDIRECT_URI,
       }),
     });
 
     const { access_token, refresh_token } = tokenResponse.data;
 
     res.redirect(
-      `http://localhost:3333/storage?${jsonToUrlEncoded({
+      `http://localhost:3333/storage?service=SPOTIFY&${jsonToUrlEncoded({
         access_token,
         refresh_token,
       })}`
@@ -70,16 +71,43 @@ app.get("/authorize-callback", async (req, res) => {
 });
 
 app.get("/google-authorize", (req, res) => {
-  console.log(
-    `https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}${
-      GOOGLE_SCOPES ? `&scope=${encodeURIComponent(GOOGLE_SCOPES)}` : ""
-    }&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}`
-  );
   res.redirect(
     `https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=${GOOGLE_CLIENT_ID}${
       GOOGLE_SCOPES ? `&scope=${encodeURIComponent(GOOGLE_SCOPES)}` : ""
     }&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}`
   );
+});
+
+app.get("/google-authorize-callback", async (req, res) => {
+  try {
+    const tokenResponse = await axios({
+      method: "POST",
+      url: "https://accounts.google.com/o/oauth2/token",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      data: jsonToUrlEncoded({
+        grant_type: "authorization_code",
+        code: req.query.code,
+        redirect_uri: GOOGLE_REDIRECT_URI,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
+      }),
+    });
+
+    const { access_token, refresh_token } = tokenResponse.data;
+
+    res.redirect(
+      `http://localhost:3333/storage?service=GOOGLE&${jsonToUrlEncoded({
+        access_token,
+        refresh_token,
+      })}`
+    );
+  } catch (error) {
+    console.log(
+      `ERROR: ${error.response.status}, ${error.response.statusText}`
+    );
+  }
 });
 
 exports.api = functions.https.onRequest(app);
