@@ -1,4 +1,5 @@
-import React, { FunctionComponent, useState } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import Button from "./Button";
 
 const Authorize: FunctionComponent = () => {
@@ -6,6 +7,7 @@ const Authorize: FunctionComponent = () => {
   const [googleAuthorized, setGoogleAuthorized] = useState(false);
 
   const [tokenData, setTokenData] = useState({});
+  const history = useHistory();
 
   const handleSpotifyAuthorizeButton = () => {
     const popUp = window.open(
@@ -15,14 +17,14 @@ const Authorize: FunctionComponent = () => {
     );
 
     if (popUp) {
-      popUp.onbeforeunload = function () {
+      popUp.addEventListener("beforeunload", () => {
         setSpotifyAuthorized(
           localStorage.getItem("spotify-access-token") !== null &&
             localStorage.getItem("spotify-refresh-token") !== null
         );
 
         updateTokenData();
-      };
+      });
     }
   };
 
@@ -34,14 +36,14 @@ const Authorize: FunctionComponent = () => {
     );
 
     if (popUp) {
-      popUp.onbeforeunload = function () {
+      popUp.addEventListener("beforeunload", () => {
         setGoogleAuthorized(
           localStorage.getItem("google-access-token") !== null &&
             localStorage.getItem("google-refresh-token") !== null
         );
 
         updateTokenData();
-      };
+      });
     }
   };
 
@@ -53,6 +55,10 @@ const Authorize: FunctionComponent = () => {
 
     setTokenData({ spToken, spRToken, gToken, gRToken });
   };
+
+  useEffect(() => {
+    if (spotifyAuthorized) history.push("/home");
+  }, [spotifyAuthorized, history]);
 
   return (
     <div>
